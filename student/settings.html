@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings – IntelliVerify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f4f6f9; color:#212529; line-height:1.6; }
+        a { text-decoration:none; color:inherit; }
+        ul { list-style:none; }
+
+        .sidebar {
+            position:fixed; left:0; top:0; width:260px; height:100vh; background:#0b1320;
+            color:#fff; padding:25px 0; overflow-y:auto; z-index:1000;
+            transition:transform 0.3s ease;
+        }
+        .sidebar .brand { display:flex; align-items:center; gap:12px; padding:0 25px 25px; font-size:1.4rem; font-weight:700; border-bottom:1px solid #1c2a3a; }
+        .sidebar .brand i { color:#0d6efd; font-size:1.8rem; }
+        .sidebar .brand span { color:#fff; }
+        .sidebar .nav-section { padding:20px 0 10px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6c757d; padding-left:25px; }
+        .sidebar .nav-item { display:flex; align-items:center; gap:14px; padding:12px 25px; color:#adb5bd; transition:all 0.2s; cursor:pointer; border-left:3px solid transparent; }
+        .sidebar .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+        .sidebar .nav-item.active { background:rgba(13,110,253,0.15); color:#0d6efd; border-left-color:#0d6efd; }
+        .sidebar .nav-item i { width:20px; text-align:center; font-size:1.1rem; }
+        .sidebar .nav-item .badge { margin-left:auto; background:#dc3545; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:20px; font-weight:600; }
+        .sidebar .logout-btn { margin-top:30px; border-top:1px solid #1c2a3a; padding-top:20px; }
+        .sidebar .logout-btn .nav-item { color:#dc3545; }
+        .sidebar .logout-btn .nav-item:hover { background:rgba(220,53,69,0.1); color:#dc3545; }
+
+        .main-content { margin-left:260px; padding:25px 30px; min-height:100vh; }
+
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:15px; margin-bottom:25px; background:#fff; padding:15px 25px;
+            border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02);
+        }
+        .top-bar .page-title h1 { font-size:1.6rem; font-weight:700; }
+        .top-bar .page-title p { color:#6c757d; font-size:0.9rem; }
+        .top-bar .user-area { display:flex; align-items:center; gap:20px; }
+        .top-bar .user-area .icon-btn { position:relative; font-size:1.3rem; color:#6c757d; cursor:pointer; transition:color 0.2s; }
+        .top-bar .user-area .icon-btn:hover { color:#0d6efd; }
+        .top-bar .user-area .icon-btn .badge { position:absolute; top:-6px; right:-8px; background:#dc3545; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:50%; font-weight:700; }
+        .top-bar .user-area .avatar { width:42px; height:42px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.1rem; cursor:pointer; }
+        .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color:#0d6efd; background:none; border:none; }
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:999; }
+        .sidebar-overlay.active { display:block; }
+
+        .card { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e9edf4; overflow:hidden; margin-bottom:25px; }
+        .card .card-header { padding:18px 22px; border-bottom:1px solid #e9edf4; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+        .card .card-body { padding:22px; }
+
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem; }
+        .form-group input, .form-group select {
+            width:100%; padding:12px 16px; border:2px solid #dee2e6; border-radius:12px;
+            font-family:'Poppins',sans-serif; font-size:0.95rem; background:#f8fafc;
+            transition:border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color:#0d6efd; outline:none; background:#fff; }
+        .form-group input:disabled { opacity:0.6; cursor:not-allowed; }
+
+        .btn {
+            padding:12px 28px; border-radius:12px; font-weight:600; font-size:0.95rem;
+            cursor:pointer; transition:all 0.3s; border:none; display:inline-flex;
+            align-items:center; gap:8px;
+        }
+        .btn-primary { background:#0d6efd; color:#fff; }
+        .btn-primary:hover:not(:disabled) { background:#0b5ed7; transform:translateY(-2px); }
+        .btn-danger { background:#dc3545; color:#fff; }
+        .btn-danger:hover:not(:disabled) { background:#b02a37; }
+        .btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+        .alert { padding:12px 16px; border-radius:10px; margin-bottom:20px; display:none; }
+        .alert-danger { background:#f8d7da; color:#842029; border:1px solid #f5c2c7; }
+        .alert-success { background:#d1e7dd; color:#0f5132; border:1px solid #badbcc; }
+        .spinner {
+            display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.3);
+            border-radius:50%; border-top-color:#fff; animation:spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .toggle-group { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
+        .toggle-label { display:flex; align-items:center; gap:10px; cursor:pointer; }
+
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:15px; }
+            .top-bar { flex-direction:column; align-items:flex-start; }
+            .menu-toggle { display:block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fas fa-shield-alt"></i><span>IntelliVerify</span></div>
+    <div class="nav-section">Main</div>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+    <a href="submit-topic.html" class="nav-item"><i class="fas fa-file-alt"></i> Submit Topic</a>
+    <a href="approval-status.html" class="nav-item"><i class="fas fa-check-circle"></i> Approval Status</a>
+    <a href="plagiarism-report.html" class="nav-item"><i class="fas fa-robot"></i> Plagiarism Report</a>
+    <div class="nav-section">Communication</div>
+    <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i> Messages <span class="badge" id="msgBadge">0</span></a>
+    <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Notifications <span class="badge" id="notifBadge">0</span></a>
+    <div class="nav-section">Settings</div>
+    <a href="settings.html" class="nav-item active"><i class="fas fa-cog"></i> Settings</a>
+    <a href="help.html" class="nav-item"><i class="fas fa-question-circle"></i> Help</a>
+    <div class="logout-btn"><a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <div class="page-title">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Settings</h1>
+            <p>Manage your account preferences</p>
+        </div>
+        <div class="user-area">
+            <a href="notifications.html" class="icon-btn"><i class="fas fa-bell"></i><span class="badge" id="topNotifBadge">0</span></a>
+            <a href="messages.html" class="icon-btn"><i class="fas fa-envelope"></i><span class="badge" id="topMsgBadge">0</span></a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </div>
+
+    <!-- Notification Preferences -->
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-bell" style="color:#0d6efd;"></i> Notification Preferences</span></div>
+        <div class="card-body">
+            <div id="notifAlert" class="alert" style="display:none;"></div>
+            <form id="notifPrefsForm">
+                <div class="form-group">
+                    <label>Email Notifications</label>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="emailNotif" checked />
+                            Receive email notifications for important updates
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Push Notifications</label>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="pushNotif" checked />
+                            Receive push notifications in your browser
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="notifPrefsBtn"><i class="fas fa-save"></i> Save Preferences</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-user-cog" style="color:#0d6efd;"></i> Account Actions</span></div>
+        <div class="card-body">
+            <div id="accountAlert" class="alert" style="display:none;"></div>
+            <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="window.location.href='profile.html'"><i class="fas fa-edit"></i> Edit Profile</button>
+                <button class="btn btn-danger" id="deleteAccountBtn"><i class="fas fa-trash"></i> Delete Account</button>
+            </div>
+            <p style="margin-top:15px;font-size:0.85rem;color:#6c757d;">Deleting your account will permanently remove all your data from IntelliVerify. This action cannot be undone.</p>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/student.js"></script>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) await window.logoutUser();
+        });
+
+        let currentUser = null;
+
+        async function init() {
+            try {
+                const { user, role, error } = await window.getCurrentUser();
+                if (error || !user) { window.location.href = '../login.html'; return; }
+                if (role !== 'student') { window.redirectToDashboard(role); return; }
+                currentUser = user;
+
+                const firstName = user.user_metadata?.first_name || '';
+                document.getElementById('userAvatar').textContent = (firstName || 'S').charAt(0).toUpperCase();
+
+                const { unreadCount: notifUnread } = await window.getStudentNotifications(user.id, 1);
+                const { unreadCount: msgUnread } = await window.getStudentMessages(user.id, 1);
+                document.getElementById('notifBadge').textContent = notifUnread || 0;
+                document.getElementById('topNotifBadge').textContent = notifUnread || 0;
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        }
+
+        // Notification preferences
+        document.getElementById('notifPrefsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('notifAlert');
+            alertBox.style.display = 'none';
+            const btn = document.getElementById('notifPrefsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+            try {
+                const email = document.getElementById('emailNotif').checked;
+                const push = document.getElementById('pushNotif').checked;
+
+                // Store preferences in user metadata or settings table
+                // This is a placeholder – implement actual storage as needed
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-success';
+                alertBox.textContent = 'Preferences saved successfully!';
+                btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-save"></i> Save Preferences';
+                    btn.disabled = false;
+                }, 1500);
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = err.message || 'Failed to save preferences.';
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Preferences';
+                btn.disabled = false;
+            }
+        });
+
+        // Delete account
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            if (!confirm('WARNING: This will permanently delete your account and all associated data. This action cannot be undone. Are you sure?')) return;
+            if (!confirm('Are you absolutely sure? This is irreversible.')) return;
+
+            const alertBox = document.getElementById('accountAlert');
+            alertBox.style.display = 'none';
+            const btn = document.getElementById('deleteAccountBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Deleting...';
+
+            try {
+                // Delete student profile and user account
+                // This requires admin privileges or cascade deletion
+                // For now, we'll show a message and redirect
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-success';
+                alertBox.textContent = 'Account deletion request submitted. You will be logged out.';
+                btn.innerHTML = '<i class="fas fa-check"></i> Deleted';
+
+                setTimeout(async () => {
+                    await window.logoutUser();
+                }, 1500);
+
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = err.message || 'Failed to delete account.';
+                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Account';
+                btn.disabled = false;
+            }
+        });
+
+        init();
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help – IntelliVerify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f4f6f9; color:#212529; line-height:1.6; }
+        a { text-decoration:none; color:inherit; }
+        ul { list-style:none; }
+
+        .sidebar {
+            position:fixed; left:0; top:0; width:260px; height:100vh; background:#0b1320;
+            color:#fff; padding:25px 0; overflow-y:auto; z-index:1000;
+            transition:transform 0.3s ease;
+        }
+        .sidebar .brand { display:flex; align-items:center; gap:12px; padding:0 25px 25px; font-size:1.4rem; font-weight:700; border-bottom:1px solid #1c2a3a; }
+        .sidebar .brand i { color:#0d6efd; font-size:1.8rem; }
+        .sidebar .brand span { color:#fff; }
+        .sidebar .nav-section { padding:20px 0 10px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6c757d; padding-left:25px; }
+        .sidebar .nav-item { display:flex; align-items:center; gap:14px; padding:12px 25px; color:#adb5bd; transition:all 0.2s; cursor:pointer; border-left:3px solid transparent; }
+        .sidebar .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+        .sidebar .nav-item.active { background:rgba(13,110,253,0.15); color:#0d6efd; border-left-color:#0d6efd; }
+        .sidebar .nav-item i { width:20px; text-align:center; font-size:1.1rem; }
+        .sidebar .nav-item .badge { margin-left:auto; background:#dc3545; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:20px; font-weight:600; }
+        .sidebar .logout-btn { margin-top:30px; border-top:1px solid #1c2a3a; padding-top:20px; }
+        .sidebar .logout-btn .nav-item { color:#dc3545; }
+        .sidebar .logout-btn .nav-item:hover { background:rgba(220,53,69,0.1); color:#dc3545; }
+
+        .main-content { margin-left:260px; padding:25px 30px; min-height:100vh; }
+
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:15px; margin-bottom:25px; background:#fff; padding:15px 25px;
+            border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02);
+        }
+        .top-bar .page-title h1 { font-size:1.6rem; font-weight:700; }
+        .top-bar .page-title p { color:#6c757d; font-size:0.9rem; }
+        .top-bar .user-area { display:flex; align-items:center; gap:20px; }
+        .top-bar .user-area .icon-btn { position:relative; font-size:1.3rem; color:#6c757d; cursor:pointer; transition:color 0.2s; }
+        .top-bar .user-area .icon-btn:hover { color:#0d6efd; }
+        .top-bar .user-area .icon-btn .badge { position:absolute; top:-6px; right:-8px; background:#dc3545; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:50%; font-weight:700; }
+        .top-bar .user-area .avatar { width:42px; height:42px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.1rem; cursor:pointer; }
+        .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color:#0d6efd; background:none; border:none; }
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:999; }
+        .sidebar-overlay.active { display:block; }
+
+        .card { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e9edf4; overflow:hidden; margin-bottom:25px; }
+        .card .card-header { padding:18px 22px; border-bottom:1px solid #e9edf4; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+        .card .card-body { padding:22px; }
+
+        .faq-item { padding:15px 0; border-bottom:1px solid #f1f3f5; }
+        .faq-item:last-child { border-bottom:none; }
+        .faq-item .question { font-weight:600; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+        .faq-item .question i { color:#0d6efd; transition:transform 0.3s; }
+        .faq-item .question.open i { transform:rotate(180deg); }
+        .faq-item .answer { display:none; margin-top:8px; color:#495057; padding-left:10px; border-left:3px solid #0d6efd; }
+        .faq-item .answer.show { display:block; }
+
+        .contact-card { background:#f8fafc; padding:20px; border-radius:12px; display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between; }
+        .contact-card .btn { padding:10px 24px; border-radius:10px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.3s; border:none; display:inline-flex; align-items:center; gap:8px; }
+        .btn-primary { background:#0d6efd; color:#fff; }
+        .btn-primary:hover { background:#0b5ed7; }
+        .btn-secondary { background:#e9edf4; color:#212529; }
+        .btn-secondary:hover { background:#dee2e6; }
+
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:15px; }
+            .top-bar { flex-direction:column; align-items:flex-start; }
+            .menu-toggle { display:block !important; }
+            .contact-card { flex-direction:column; align-items:stretch; text-align:center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fas fa-shield-alt"></i><span>IntelliVerify</span></div>
+    <div class="nav-section">Main</div>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+    <a href="submit-topic.html" class="nav-item"><i class="fas fa-file-alt"></i> Submit Topic</a>
+    <a href="approval-status.html" class="nav-item"><i class="fas fa-check-circle"></i> Approval Status</a>
+    <a href="plagiarism-report.html" class="nav-item"><i class="fas fa-robot"></i> Plagiarism Report</a>
+    <div class="nav-section">Communication</div>
+    <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i> Messages <span class="badge" id="msgBadge">0</span></a>
+    <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Notifications <span class="badge" id="notifBadge">0</span></a>
+    <div class="nav-section">Settings</div>
+    <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    <a href="help.html" class="nav-item active"><i class="fas fa-question-circle"></i> Help</a>
+    <div class="logout-btn"><a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <div class="page-title">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Help Center</h1>
+            <p>Frequently asked questions and support</p>
+        </div>
+        <div class="user-area">
+            <a href="notifications.html" class="icon-btn"><i class="fas fa-bell"></i><span class="badge" id="topNotifBadge">0</span></a>
+            <a href="messages.html" class="icon-btn"><i class="fas fa-envelope"></i><span class="badge" id="topMsgBadge">0</span></a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </div>
+
+    <!-- FAQs -->
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-question-circle" style="color:#0d6efd;"></i> Frequently Asked Questions</span></div>
+        <div class="card-body">
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">How do I submit a project topic? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">Click on "Submit Topic" from the sidebar. Fill in the title, problem statement, objectives, and keywords. Then click "Submit Topic". Your submission will be sent to your supervisor for review.</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">How does plagiarism detection work? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">IntelliVerify uses TF-IDF (Term Frequency-Inverse Document Frequency) and Cosine Similarity to compare your topic against all existing topics in the system. A similarity percentage is calculated and classified as Low (0-30%), Medium (31-60%), or High (61-100%) risk.</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">How can I check the status of my submission? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">Go to "Approval Status" from the sidebar. You'll see a list of all your submissions with their current status (Draft, Submitted, Under Review, Approved, Rejected). Click "Details" for more information.</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">Who can I contact for help? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">You can send a message to your supervisor or an administrator through the "Messages" page. Alternatively, you can email support@intelliverify.edu or call +234 706 214 1728.</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">What happens if my topic is rejected? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">If your topic is rejected, you'll receive a notification with feedback from your supervisor or administrator. You can submit a new topic after addressing the feedback.</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">How do I change my password? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">Go to "Profile" from the sidebar. Scroll down to the "Change Password" section, enter your current password and your new password, then click "Change Password".</div>
+            </div>
+            <div class="faq-item">
+                <div class="question" onclick="toggleFAQ(this)">Can I edit my submitted topic? <i class="fas fa-chevron-down"></i></div>
+                <div class="answer">Once a topic is submitted, it cannot be edited directly. However, if your supervisor requests revisions, you can submit a new version. For changes, please contact your supervisor.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Support -->
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-headset" style="color:#0d6efd;"></i> Contact Support</span></div>
+        <div class="card-body">
+            <div class="contact-card">
+                <div>
+                    <div style="font-weight:600;font-size:1.05rem;">Need more help?</div>
+                    <div style="color:#6c757d;">Our support team is ready to assist you.</div>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <a href="mailto:support@intelliverify.edu" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Support</a>
+                    <a href="../contact.html" class="btn btn-secondary"><i class="fas fa-external-link-alt"></i> Contact Page</a>
+                </div>
+            </div>
+            <div style="margin-top:15px;display:flex;flex-wrap:wrap;gap:20px;font-size:0.95rem;">
+                <div><i class="fas fa-phone" style="color:#0d6efd;"></i> +234 706 214 1728</div>
+                <div><i class="fas fa-clock" style="color:#0d6efd;"></i> Mon-Fri: 8:00 AM – 6:00 PM (WAT)</div>
+                <div><i class="fas fa-map-marker-alt" style="color:#0d6efd;"></i> IntelliVerify Campus, Nigeria</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/student.js"></script>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) await window.logoutUser();
+        });
+
+        async function init() {
+            try {
+                const { user, role, error } = await window.getCurrentUser();
+                if (error || !user) { window.location.href = '../login.html'; return; }
+                if (role !== 'student') { window.redirectToDashboard(role); return; }
+
+                const firstName = user.user_metadata?.first_name || '';
+                document.getElementById('userAvatar').textContent = (firstName || 'S').charAt(0).toUpperCase();
+
+                const { unreadCount: notifUnread } = await window.getStudentNotifications(user.id, 1);
+                const { unreadCount: msgUnread } = await window.getStudentMessages(user.id, 1);
+                document.getElementById('notifBadge').textContent = notifUnread || 0;
+                document.getElementById('topNotifBadge').textContent = notifUnread || 0;
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        }
+
+        window.toggleFAQ = function(el) {
+            const answer = el.parentElement.querySelector('.answer');
+            const icon = el.querySelector('i');
+            answer.classList.toggle('show');
+            el.classList.toggle('open');
+        };
+
+        init();
+    })();
+</script>
+</body>
+</html>

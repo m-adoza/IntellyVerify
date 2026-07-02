@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages – IntelliVerify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f4f6f9; color:#212529; line-height:1.6; }
+        a { text-decoration:none; color:inherit; }
+        ul { list-style:none; }
+
+        .sidebar {
+            position:fixed; left:0; top:0; width:260px; height:100vh; background:#0b1320;
+            color:#fff; padding:25px 0; overflow-y:auto; z-index:1000;
+            transition:transform 0.3s ease;
+        }
+        .sidebar .brand { display:flex; align-items:center; gap:12px; padding:0 25px 25px; font-size:1.4rem; font-weight:700; border-bottom:1px solid #1c2a3a; }
+        .sidebar .brand i { color:#0d6efd; font-size:1.8rem; }
+        .sidebar .brand span { color:#fff; }
+        .sidebar .nav-section { padding:20px 0 10px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6c757d; padding-left:25px; }
+        .sidebar .nav-item { display:flex; align-items:center; gap:14px; padding:12px 25px; color:#adb5bd; transition:all 0.2s; cursor:pointer; border-left:3px solid transparent; }
+        .sidebar .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+        .sidebar .nav-item.active { background:rgba(13,110,253,0.15); color:#0d6efd; border-left-color:#0d6efd; }
+        .sidebar .nav-item i { width:20px; text-align:center; font-size:1.1rem; }
+        .sidebar .nav-item .badge { margin-left:auto; background:#dc3545; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:20px; font-weight:600; }
+        .sidebar .logout-btn { margin-top:30px; border-top:1px solid #1c2a3a; padding-top:20px; }
+        .sidebar .logout-btn .nav-item { color:#dc3545; }
+        .sidebar .logout-btn .nav-item:hover { background:rgba(220,53,69,0.1); color:#dc3545; }
+
+        .main-content { margin-left:260px; padding:25px 30px; min-height:100vh; }
+
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:15px; margin-bottom:25px; background:#fff; padding:15px 25px;
+            border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02);
+        }
+        .top-bar .page-title h1 { font-size:1.6rem; font-weight:700; }
+        .top-bar .page-title p { color:#6c757d; font-size:0.9rem; }
+        .top-bar .user-area { display:flex; align-items:center; gap:20px; }
+        .top-bar .user-area .icon-btn { position:relative; font-size:1.3rem; color:#6c757d; cursor:pointer; transition:color 0.2s; }
+        .top-bar .user-area .icon-btn:hover { color:#0d6efd; }
+        .top-bar .user-area .icon-btn .badge { position:absolute; top:-6px; right:-8px; background:#dc3545; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:50%; font-weight:700; }
+        .top-bar .user-area .avatar { width:42px; height:42px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.1rem; cursor:pointer; }
+        .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color:#0d6efd; background:none; border:none; }
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:999; }
+        .sidebar-overlay.active { display:block; }
+
+        .card { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e9edf4; overflow:hidden; }
+        .card .card-header { padding:18px 22px; border-bottom:1px solid #e9edf4; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+        .card .card-body { padding:22px; }
+
+        .msg-item {
+            display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #f1f3f5; align-items:flex-start; cursor:pointer;
+            transition:background 0.2s;
+        }
+        .msg-item:hover { background:#f8fafc; margin:0 -22px; padding:14px 22px; }
+        .msg-item.unread { background:#f0f7ff; margin:0 -22px; padding:14px 22px; }
+        .msg-item .avatar-sm {
+            width:42px; height:42px; border-radius:50%; background:#e9edf4;
+            display:flex; align-items:center; justify-content:center; color:#0d6efd; flex-shrink:0;
+            font-weight:600;
+        }
+        .msg-item .content { flex:1; }
+        .msg-item .content .sender { font-weight:600; }
+        .msg-item .content .subject { font-weight:500; }
+        .msg-item .content .preview { color:#6c757d; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px; }
+        .msg-item .content .time { font-size:0.8rem; color:#6c757d; }
+        .msg-item .badge-new { background:#0d6efd; color:#fff; font-size:0.6rem; padding:2px 8px; border-radius:20px; }
+
+        .empty-state { text-align:center; padding:40px 10px; color:#6c757d; }
+        .empty-state i { font-size:3rem; color:#dee2e6; margin-bottom:15px; }
+
+        .compose-area { margin-top:20px; padding-top:20px; border-top:2px solid #e9edf4; }
+        .form-group { margin-bottom:15px; }
+        .form-group label { display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:10px 14px; border:2px solid #dee2e6; border-radius:10px;
+            font-family:'Poppins',sans-serif; font-size:0.95rem; background:#f8fafc;
+            transition:border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color:#0d6efd; outline:none; background:#fff;
+        }
+        .form-group textarea { resize:vertical; min-height:80px; }
+        .btn {
+            padding:10px 24px; border-radius:10px; font-weight:600; font-size:0.9rem;
+            cursor:pointer; transition:all 0.3s; border:none; display:inline-flex;
+            align-items:center; gap:8px;
+        }
+        .btn-primary { background:#0d6efd; color:#fff; }
+        .btn-primary:hover { background:#0b5ed7; }
+        .btn-success { background:#198754; color:#fff; }
+        .btn-success:hover { background:#157347; }
+        .btn-secondary { background:#6c757d; color:#fff; }
+        .btn-secondary:hover { background:#5a6268; }
+        .spinner {
+            display:inline-block; width:18px; height:18px; border:3px solid rgba(255,255,255,0.3);
+            border-radius:50%; border-top-color:#fff; animation:spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .alert { padding:12px 16px; border-radius:10px; margin-bottom:15px; display:none; }
+        .alert-danger { background:#f8d7da; color:#842029; border:1px solid #f5c2c7; }
+        .alert-success { background:#d1e7dd; color:#0f5132; border:1px solid #badbcc; }
+
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:15px; }
+            .top-bar { flex-direction:column; align-items:flex-start; }
+            .menu-toggle { display:block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fas fa-shield-alt"></i><span>IntelliVerify</span></div>
+    <div class="nav-section">Main</div>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+    <a href="submit-topic.html" class="nav-item"><i class="fas fa-file-alt"></i> Submit Topic</a>
+    <a href="approval-status.html" class="nav-item"><i class="fas fa-check-circle"></i> Approval Status</a>
+    <a href="plagiarism-report.html" class="nav-item"><i class="fas fa-robot"></i> Plagiarism Report</a>
+    <div class="nav-section">Communication</div>
+    <a href="messages.html" class="nav-item active"><i class="fas fa-envelope"></i> Messages <span class="badge" id="msgBadge">0</span></a>
+    <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Notifications <span class="badge" id="notifBadge">0</span></a>
+    <div class="nav-section">Settings</div>
+    <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    <a href="help.html" class="nav-item"><i class="fas fa-question-circle"></i> Help</a>
+    <div class="logout-btn"><a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <div class="page-title">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Messages</h1>
+            <p>Communicate with supervisors and administrators</p>
+        </div>
+        <div class="user-area">
+            <a href="notifications.html" class="icon-btn"><i class="fas fa-bell"></i><span class="badge" id="topNotifBadge">0</span></a>
+            <a href="messages.html" class="icon-btn"><i class="fas fa-envelope"></i><span class="badge" id="topMsgBadge">0</span></a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:25px;">
+        <div class="card-header"><span><i class="fas fa-inbox" style="color:#0d6efd;"></i> Inbox</span></div>
+        <div class="card-body" id="messageList">
+            <div class="empty-state"><i class="fas fa-inbox"></i><p>No messages in your inbox.</p></div>
+        </div>
+    </div>
+
+    <!-- Compose -->
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-pen" style="color:#0d6efd;"></i> Compose Message</span></div>
+        <div class="card-body">
+            <div id="composeAlert" class="alert" style="display:none;"></div>
+            <form id="composeForm">
+                <div class="form-group">
+                    <label>Recipient</label>
+                    <select id="recipient" required>
+                        <option value="">Select Recipient</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="subject" placeholder="Message subject" required />
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="messageBody" placeholder="Type your message here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="sendBtn"><i class="fas fa-paper-plane"></i> Send Message</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/student.js"></script>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) await window.logoutUser();
+        });
+
+        let currentUser = null;
+
+        async function init() {
+            try {
+                const { user, role, error } = await window.getCurrentUser();
+                if (error || !user) { window.location.href = '../login.html'; return; }
+                if (role !== 'student') { window.redirectToDashboard(role); return; }
+                currentUser = user;
+
+                const firstName = user.user_metadata?.first_name || '';
+                document.getElementById('userAvatar').textContent = (firstName || 'S').charAt(0).toUpperCase();
+
+                await loadMessages();
+                await loadRecipients();
+
+                const { unreadCount: notifUnread } = await window.getStudentNotifications(user.id, 1);
+                const { unreadCount: msgUnread } = await window.getStudentMessages(user.id, 1);
+                document.getElementById('notifBadge').textContent = notifUnread || 0;
+                document.getElementById('topNotifBadge').textContent = notifUnread || 0;
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadMessages() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('messages')
+                    .select(`
+                        *,
+                        sender:sender_id (first_name, last_name, email),
+                        receiver:receiver_id (first_name, last_name, email)
+                    `)
+                    .eq('receiver_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('messageList');
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No messages in your inbox.</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(m => {
+                    const senderName = m.sender ? `${m.sender.first_name || ''} ${m.sender.last_name || ''}`.trim() : 'Unknown';
+                    const initial = senderName.charAt(0).toUpperCase() || 'U';
+                    const unread = !m.is_read;
+
+                    return `
+                        <div class="msg-item ${unread ? 'unread' : ''}" onclick="openMessage('${m.message_id}')">
+                            <div class="avatar-sm">${initial}</div>
+                            <div class="content">
+                                <div class="sender">${senderName} ${unread ? '<span class="badge-new">New</span>' : ''}</div>
+                                <div class="subject">${m.subject || 'Message'}</div>
+                                <div class="preview">${m.message_body || ''}</div>
+                                <div class="time">${formatTime(m.created_at)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) { console.error(err); }
+        }
+
+        window.openMessage = async function(messageId) {
+            try {
+                // Mark as read
+                await window.markMessageRead(messageId);
+
+                const { data, error } = await window.supabaseClient
+                    .from('messages')
+                    .select('*, sender:sender_id (first_name, last_name, email)')
+                    .eq('message_id', messageId)
+                    .maybeSingle();
+
+                if (error || !data) { alert('Message not found.'); return; }
+
+                const senderName = data.sender ? `${data.sender.first_name || ''} ${data.sender.last_name || ''}`.trim() : 'Unknown';
+                alert(`From: ${senderName}\nSubject: ${data.subject || 'Message'}\n\n${data.message_body || ''}\n\nSent: ${formatTime(data.created_at)}`);
+
+                // Reload to update read status
+                await loadMessages();
+                const { unreadCount: msgUnread } = await window.getStudentMessages(currentUser.id, 1);
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        };
+
+        async function loadRecipients() {
+            try {
+                // Get supervisors and administrators
+                const { data: supervisors, error: supError } = await window.supabaseClient
+                    .from('supervisors')
+                    .select('user_id')
+                    .limit(50);
+                if (supError) throw supError;
+
+                const { data: admins, error: adminError } = await window.supabaseClient
+                    .from('administrators')
+                    .select('user_id')
+                    .limit(50);
+                if (adminError) throw adminError;
+
+                const userIds = [...supervisors.map(s => s.user_id), ...admins.map(a => a.user_id)];
+                if (userIds.length === 0) {
+                    document.getElementById('recipient').innerHTML = `<option value="">No recipients available</option>`;
+                    return;
+                }
+
+                const { data: users, error: userError } = await window.supabaseClient
+                    .from('users')
+                    .select('user_id, first_name, last_name, email')
+                    .in('user_id', userIds);
+
+                if (userError) throw userError;
+
+                const select = document.getElementById('recipient');
+                select.innerHTML = `<option value="">Select Recipient</option>`;
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.user_id;
+                    opt.textContent = `${u.first_name || ''} ${u.last_name || ''} (${u.email || ''})`.trim();
+                    select.appendChild(opt);
+                });
+
+            } catch (err) { console.error('Error loading recipients:', err); }
+        }
+
+        document.getElementById('composeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('composeAlert');
+            alertBox.style.display = 'none';
+
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('messageBody').value.trim();
+
+            if (!recipient || !subject || !message) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = 'All fields are required.';
+                return;
+            }
+
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Sending...';
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from('messages')
+                    .insert([{
+                        sender_id: currentUser.id,
+                        receiver_id: recipient,
+                        subject: subject,
+                        message_body: message,
+                        is_read: false,
+                        created_at: new Date().toISOString()
+                    }]);
+
+                if (error) throw error;
+
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-success';
+                alertBox.textContent = 'Message sent successfully!';
+                document.getElementById('composeForm').reset();
+                btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                    btn.disabled = false;
+                }, 1500);
+
+                await loadMessages();
+                const { unreadCount: msgUnread } = await window.getStudentMessages(currentUser.id, 1);
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = err.message || 'Failed to send message.';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            }
+        });
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>

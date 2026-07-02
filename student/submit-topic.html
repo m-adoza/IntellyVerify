@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Topic – IntelliVerify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f4f6f9; color:#212529; line-height:1.6; }
+        a { text-decoration:none; color:inherit; }
+        ul { list-style:none; }
+
+        .sidebar {
+            position:fixed; left:0; top:0; width:260px; height:100vh; background:#0b1320;
+            color:#fff; padding:25px 0; overflow-y:auto; z-index:1000;
+            transition:transform 0.3s ease;
+        }
+        .sidebar .brand { display:flex; align-items:center; gap:12px; padding:0 25px 25px; font-size:1.4rem; font-weight:700; border-bottom:1px solid #1c2a3a; }
+        .sidebar .brand i { color:#0d6efd; font-size:1.8rem; }
+        .sidebar .brand span { color:#fff; }
+        .sidebar .nav-section { padding:20px 0 10px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6c757d; padding-left:25px; }
+        .sidebar .nav-item { display:flex; align-items:center; gap:14px; padding:12px 25px; color:#adb5bd; transition:all 0.2s; cursor:pointer; border-left:3px solid transparent; }
+        .sidebar .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+        .sidebar .nav-item.active { background:rgba(13,110,253,0.15); color:#0d6efd; border-left-color:#0d6efd; }
+        .sidebar .nav-item i { width:20px; text-align:center; font-size:1.1rem; }
+        .sidebar .nav-item .badge { margin-left:auto; background:#dc3545; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:20px; font-weight:600; }
+        .sidebar .logout-btn { margin-top:30px; border-top:1px solid #1c2a3a; padding-top:20px; }
+        .sidebar .logout-btn .nav-item { color:#dc3545; }
+        .sidebar .logout-btn .nav-item:hover { background:rgba(220,53,69,0.1); color:#dc3545; }
+
+        .main-content { margin-left:260px; padding:25px 30px; min-height:100vh; }
+
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:15px; margin-bottom:25px; background:#fff; padding:15px 25px;
+            border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02);
+        }
+        .top-bar .page-title h1 { font-size:1.6rem; font-weight:700; }
+        .top-bar .page-title p { color:#6c757d; font-size:0.9rem; }
+        .top-bar .user-area { display:flex; align-items:center; gap:20px; }
+        .top-bar .user-area .icon-btn { position:relative; font-size:1.3rem; color:#6c757d; cursor:pointer; transition:color 0.2s; }
+        .top-bar .user-area .icon-btn:hover { color:#0d6efd; }
+        .top-bar .user-area .icon-btn .badge { position:absolute; top:-6px; right:-8px; background:#dc3545; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:50%; font-weight:700; }
+        .top-bar .user-area .avatar { width:42px; height:42px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.1rem; cursor:pointer; }
+        .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color:#0d6efd; background:none; border:none; }
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:999; }
+        .sidebar-overlay.active { display:block; }
+
+        .card { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e9edf4; overflow:hidden; }
+        .card .card-header { padding:18px 22px; border-bottom:1px solid #e9edf4; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+        .card .card-body { padding:22px; }
+
+        .form-group { margin-bottom:20px; }
+        .form-group label { display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem; }
+        .form-group label .required { color:#dc3545; }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:12px 16px; border:2px solid #dee2e6; border-radius:12px;
+            font-family:'Poppins',sans-serif; font-size:0.95rem; background:#f8fafc;
+            transition:border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color:#0d6efd; outline:none; background:#fff;
+        }
+        .form-group textarea { resize:vertical; min-height:120px; }
+        .form-group .hint { font-size:0.8rem; color:#6c757d; margin-top:4px; }
+        .form-row { display:flex; gap:15px; flex-wrap:wrap; }
+        .form-row .form-group { flex:1 1 45%; }
+
+        .btn {
+            padding:12px 28px; border-radius:12px; font-weight:600; font-size:0.95rem;
+            cursor:pointer; transition:all 0.3s; border:none; display:inline-flex;
+            align-items:center; gap:8px;
+        }
+        .btn-primary { background:#0d6efd; color:#fff; }
+        .btn-primary:hover:not(:disabled) { background:#0b5ed7; transform:translateY(-2px); }
+        .btn-secondary { background:#6c757d; color:#fff; }
+        .btn-secondary:hover:not(:disabled) { background:#5a6268; }
+        .btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+        .alert { padding:12px 16px; border-radius:10px; margin-bottom:20px; display:none; }
+        .alert-danger { background:#f8d7da; color:#842029; border:1px solid #f5c2c7; }
+        .alert-success { background:#d1e7dd; color:#0f5132; border:1px solid #badbcc; }
+        .alert-info { background:#cfe2ff; color:#084298; border:1px solid #b6d4fe; }
+
+        .spinner {
+            display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.3);
+            border-radius:50%; border-top-color:#fff; animation:spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        .plagiarism-preview {
+            margin-top:20px; padding:20px; background:#f8fafc; border-radius:12px;
+            border:1px solid #e9edf4; display:none;
+        }
+        .plagiarism-preview .score {
+            font-size:2rem; font-weight:700;
+        }
+        .plagiarism-preview .score.low { color:#198754; }
+        .plagiarism-preview .score.medium { color:#ffc107; }
+        .plagiarism-preview .score.high { color:#dc3545; }
+
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:15px; }
+            .top-bar { flex-direction:column; align-items:flex-start; }
+            .menu-toggle { display:block !important; }
+            .form-row .form-group { flex:1 1 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fas fa-shield-alt"></i><span>IntelliVerify</span></div>
+    <div class="nav-section">Main</div>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+    <a href="submit-topic.html" class="nav-item active"><i class="fas fa-file-alt"></i> Submit Topic</a>
+    <a href="approval-status.html" class="nav-item"><i class="fas fa-check-circle"></i> Approval Status</a>
+    <a href="plagiarism-report.html" class="nav-item"><i class="fas fa-robot"></i> Plagiarism Report</a>
+    <div class="nav-section">Communication</div>
+    <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i> Messages <span class="badge" id="msgBadge">0</span></a>
+    <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Notifications <span class="badge" id="notifBadge">0</span></a>
+    <div class="nav-section">Settings</div>
+    <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    <a href="help.html" class="nav-item"><i class="fas fa-question-circle"></i> Help</a>
+    <div class="logout-btn"><a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <div class="page-title">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Submit Project Topic</h1>
+            <p>Submit your final year project topic for review and approval</p>
+        </div>
+        <div class="user-area">
+            <a href="notifications.html" class="icon-btn"><i class="fas fa-bell"></i><span class="badge" id="topNotifBadge">0</span></a>
+            <a href="messages.html" class="icon-btn"><i class="fas fa-envelope"></i><span class="badge" id="topMsgBadge">0</span></a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-pen" style="color:#0d6efd;"></i> Topic Submission Form</span></div>
+        <div class="card-body">
+            <div id="alertBox" class="alert" style="display:none;"></div>
+
+            <form id="topicForm">
+                <div class="form-group">
+                    <label>Topic Title <span class="required">*</span></label>
+                    <input type="text" id="title" placeholder="Enter a clear and concise title for your project" required />
+                    <div class="hint">Be specific and descriptive. Avoid vague or overly broad titles.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Problem Statement <span class="required">*</span></label>
+                    <textarea id="problem" placeholder="Describe the problem your project aims to solve" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Objectives <span class="required">*</span></label>
+                    <textarea id="objectives" placeholder="List the main objectives of your project (one per line)" required></textarea>
+                    <div class="hint">Separate each objective with a new line.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Keywords <span class="required">*</span></label>
+                    <input type="text" id="keywords" placeholder="e.g., Machine Learning, Data Mining, Artificial Intelligence" required />
+                    <div class="hint">Separate keywords with commas. These will be used for plagiarism detection.</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Research Area</label>
+                        <select id="researchArea">
+                            <option value="">Select Research Area</option>
+                            <option value="artificial_intelligence">Artificial Intelligence</option>
+                            <option value="machine_learning">Machine Learning</option>
+                            <option value="data_science">Data Science</option>
+                            <option value="cybersecurity">Cybersecurity</option>
+                            <option value="software_engineering">Software Engineering</option>
+                            <option value="networking">Networking</option>
+                            <option value="database">Database Systems</option>
+                            <option value="hci">Human-Computer Interaction</option>
+                            <option value="robotics">Robotics</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Preferred Supervisor (Optional)</label>
+                        <select id="supervisor">
+                            <option value="">No preference</option>
+                            <!-- Will be populated from database -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea id="notes" placeholder="Any additional information for the supervisor or administrator"></textarea>
+                </div>
+
+                <div style="display:flex; gap:15px; flex-wrap:wrap; margin-top:10px;">
+                    <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fas fa-paper-plane"></i> Submit Topic</button>
+                    <button type="button" class="btn btn-secondary" id="checkPlagiarismBtn"><i class="fas fa-robot"></i> Check Plagiarism</button>
+                    <button type="reset" class="btn btn-secondary" style="background:#e9edf4;color:#212529;"><i class="fas fa-undo"></i> Clear</button>
+                </div>
+            </form>
+
+            <!-- Plagiarism Preview -->
+            <div class="plagiarism-preview" id="plagiarismPreview">
+                <h4 style="margin-bottom:10px;"><i class="fas fa-robot" style="color:#0d6efd;"></i> Plagiarism Check Result</h4>
+                <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                    <div>
+                        <div class="score" id="plagScore">0%</div>
+                        <div style="font-size:0.85rem;color:#6c757d;">Similarity Score</div>
+                    </div>
+                    <div>
+                        <div id="plagRisk" style="font-weight:600;padding:4px 16px;border-radius:20px;display:inline-block;">-</div>
+                        <div style="font-size:0.85rem;color:#6c757d;">Risk Level</div>
+                    </div>
+                    <div style="flex:1;min-width:150px;">
+                        <div style="font-size:0.85rem;color:#6c757d;">Matched Topics:</div>
+                        <div id="plagMatches" style="font-weight:500;">None</div>
+                    </div>
+                </div>
+                <div id="plagRecommendation" style="margin-top:12px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e9edf4;font-size:0.95rem;"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/validation.js"></script>
+<script src="../js/student.js"></script>
+
+<script>
+    (function() {
+        // Mobile menu
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) await window.logoutUser();
+        });
+
+        let currentUser = null;
+        let studentId = null;
+
+        async function init() {
+            try {
+                const { user, role, error } = await window.getCurrentUser();
+                if (error || !user) { window.location.href = '../login.html'; return; }
+                if (role !== 'student') { window.redirectToDashboard(role); return; }
+                currentUser = user;
+
+                const firstName = user.user_metadata?.first_name || '';
+                document.getElementById('userAvatar').textContent = (firstName || 'S').charAt(0).toUpperCase();
+
+                // Get student ID
+                const { profile } = await window.getStudentProfile(user.id);
+                if (profile) studentId = profile.student_id;
+
+                // Load supervisors
+                await loadSupervisors();
+
+                // Load notification/message counts
+                const { unreadCount: notifUnread } = await window.getStudentNotifications(user.id, 1);
+                const { unreadCount: msgUnread } = await window.getStudentMessages(user.id, 1);
+                document.getElementById('notifBadge').textContent = notifUnread || 0;
+                document.getElementById('topNotifBadge').textContent = notifUnread || 0;
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadSupervisors() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('supervisors')
+                    .select('supervisor_id, user_id, staff_id')
+                    .limit(20);
+                if (error) throw error;
+                const select = document.getElementById('supervisor');
+                if (data && data.length > 0) {
+                    // Need to get names from users table
+                    for (const sup of data) {
+                        const { data: userData } = await window.supabaseClient
+                            .from('users')
+                            .select('first_name, last_name')
+                            .eq('user_id', sup.user_id)
+                            .maybeSingle();
+                        if (userData) {
+                            const opt = document.createElement('option');
+                            opt.value = sup.supervisor_id;
+                            opt.textContent = `${userData.first_name} ${userData.last_name} (${sup.staff_id || 'Staff'})`;
+                            select.appendChild(opt);
+                        }
+                    }
+                }
+            } catch (err) { console.error('Error loading supervisors:', err); }
+        }
+
+        // Check plagiarism
+        document.getElementById('checkPlagiarismBtn').addEventListener('click', async () => {
+            const title = document.getElementById('title').value.trim();
+            const keywords = document.getElementById('keywords').value.trim();
+
+            if (!title) {
+                showAlert('Please enter a topic title first.', 'danger');
+                return;
+            }
+
+            const preview = document.getElementById('plagiarismPreview');
+            preview.style.display = 'block';
+
+            // Simple client-side simulation (will be replaced with actual backend call)
+            const mockScore = Math.floor(Math.random() * 40) + 5;
+            const score = mockScore;
+
+            document.getElementById('plagScore').textContent = score + '%';
+            const riskEl = document.getElementById('plagRisk');
+            const recEl = document.getElementById('plagRecommendation');
+
+            if (score <= 30) {
+                riskEl.textContent = 'Low Risk';
+                riskEl.style.background = '#d1e7dd';
+                riskEl.style.color = '#198754';
+                recEl.textContent = '✅ This topic appears original. Proceed with submission.';
+            } else if (score <= 60) {
+                riskEl.textContent = 'Medium Risk';
+                riskEl.style.background = '#fff3cd';
+                riskEl.style.color = '#856404';
+                recEl.textContent = '⚠️ Some similarities detected. Consider revising your topic to improve originality.';
+            } else {
+                riskEl.textContent = 'High Risk';
+                riskEl.style.background = '#f8d7da';
+                riskEl.style.color = '#842029';
+                recEl.textContent = '❌ Significant similarities found. Please revise your topic before submission.';
+            }
+
+            document.getElementById('plagMatches').textContent = '2 similar topics found (simulated)';
+        });
+
+        // Submit topic
+        document.getElementById('topicForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('alertBox');
+            alertBox.style.display = 'none';
+
+            const title = document.getElementById('title').value.trim();
+            const problem = document.getElementById('problem').value.trim();
+            const objectives = document.getElementById('objectives').value.trim();
+            const keywords = document.getElementById('keywords').value.trim();
+            const researchArea = document.getElementById('researchArea').value;
+            const supervisor = document.getElementById('supervisor').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!title || !problem || !objectives || !keywords) {
+                showAlert('All required fields (*) must be filled.', 'danger');
+                return;
+            }
+
+            if (!studentId) {
+                showAlert('Student profile not found. Please contact support.', 'danger');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('topics')
+                    .insert([{
+                        student_id: studentId,
+                        title: title,
+                        description: problem,
+                        problem_statement: problem,
+                        objectives: objectives,
+                        keywords: keywords,
+                        research_area: researchArea || null,
+                        preferred_supervisor: supervisor || null,
+                        notes: notes || null,
+                        status: 'submitted',
+                        submitted_at: new Date().toISOString()
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                // Create notification for supervisor(s) and admin
+                await window.supabaseClient
+                    .from('notifications')
+                    .insert([
+                        {
+                            user_id: currentUser.id,
+                            title: 'Topic Submitted',
+                            message: `Your topic "${title}" has been submitted successfully.`,
+                            type: 'success',
+                            is_read: false,
+                            created_at: new Date().toISOString()
+                        }
+                    ]);
+
+                showAlert('Topic submitted successfully! Redirecting...', 'success');
+                btn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
+                setTimeout(() => { window.location.href = 'approval-status.html'; }, 1500);
+
+            } catch (err) {
+                showAlert(err.message || 'Submission failed. Please try again.', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Topic';
+            }
+        });
+
+        function showAlert(message, type) {
+            const box = document.getElementById('alertBox');
+            box.style.display = 'block';
+            box.className = 'alert alert-' + type;
+            box.textContent = message;
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>

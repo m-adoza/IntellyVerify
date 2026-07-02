@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plagiarism Report – IntelliVerify</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f4f6f9; color:#212529; line-height:1.6; }
+        a { text-decoration:none; color:inherit; }
+        ul { list-style:none; }
+
+        .sidebar {
+            position:fixed; left:0; top:0; width:260px; height:100vh; background:#0b1320;
+            color:#fff; padding:25px 0; overflow-y:auto; z-index:1000;
+            transition:transform 0.3s ease;
+        }
+        .sidebar .brand { display:flex; align-items:center; gap:12px; padding:0 25px 25px; font-size:1.4rem; font-weight:700; border-bottom:1px solid #1c2a3a; }
+        .sidebar .brand i { color:#0d6efd; font-size:1.8rem; }
+        .sidebar .brand span { color:#fff; }
+        .sidebar .nav-section { padding:20px 0 10px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#6c757d; padding-left:25px; }
+        .sidebar .nav-item { display:flex; align-items:center; gap:14px; padding:12px 25px; color:#adb5bd; transition:all 0.2s; cursor:pointer; border-left:3px solid transparent; }
+        .sidebar .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+        .sidebar .nav-item.active { background:rgba(13,110,253,0.15); color:#0d6efd; border-left-color:#0d6efd; }
+        .sidebar .nav-item i { width:20px; text-align:center; font-size:1.1rem; }
+        .sidebar .nav-item .badge { margin-left:auto; background:#dc3545; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:20px; font-weight:600; }
+        .sidebar .logout-btn { margin-top:30px; border-top:1px solid #1c2a3a; padding-top:20px; }
+        .sidebar .logout-btn .nav-item { color:#dc3545; }
+        .sidebar .logout-btn .nav-item:hover { background:rgba(220,53,69,0.1); color:#dc3545; }
+
+        .main-content { margin-left:260px; padding:25px 30px; min-height:100vh; }
+
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:15px; margin-bottom:25px; background:#fff; padding:15px 25px;
+            border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02);
+        }
+        .top-bar .page-title h1 { font-size:1.6rem; font-weight:700; }
+        .top-bar .page-title p { color:#6c757d; font-size:0.9rem; }
+        .top-bar .user-area { display:flex; align-items:center; gap:20px; }
+        .top-bar .user-area .icon-btn { position:relative; font-size:1.3rem; color:#6c757d; cursor:pointer; transition:color 0.2s; }
+        .top-bar .user-area .icon-btn:hover { color:#0d6efd; }
+        .top-bar .user-area .icon-btn .badge { position:absolute; top:-6px; right:-8px; background:#dc3545; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:50%; font-weight:700; }
+        .top-bar .user-area .avatar { width:42px; height:42px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.1rem; cursor:pointer; }
+        .menu-toggle { display:none; font-size:1.5rem; cursor:pointer; color:#0d6efd; background:none; border:none; }
+        .sidebar-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:999; }
+        .sidebar-overlay.active { display:block; }
+
+        .card { background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e9edf4; overflow:hidden; }
+        .card .card-header { padding:18px 22px; border-bottom:1px solid #e9edf4; display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+        .card .card-body { padding:22px; }
+
+        .report-item {
+            padding:18px 0; border-bottom:1px solid #f1f3f5;
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+        }
+        .report-item:last-child { border-bottom:none; }
+
+        .score-circle {
+            width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-size:1.4rem; font-weight:700; color:#fff; flex-shrink:0;
+        }
+        .score-circle.low { background:#198754; }
+        .score-circle.medium { background:#ffc107; color:#212529; }
+        .score-circle.high { background:#dc3545; }
+
+        .empty-state { text-align:center; padding:40px 10px; color:#6c757d; }
+        .empty-state i { font-size:3rem; color:#dee2e6; margin-bottom:15px; }
+
+        .btn { padding:8px 18px; border-radius:10px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.3s; border:none; display:inline-flex; align-items:center; gap:6px; }
+        .btn-primary { background:#0d6efd; color:#fff; }
+        .btn-primary:hover { background:#0b5ed7; }
+        .btn-sm { padding:6px 14px; font-size:0.8rem; }
+
+        .match-item { padding:8px 12px; background:#f8fafc; border-radius:8px; margin-bottom:6px; border-left:3px solid #0d6efd; }
+
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:15px; }
+            .top-bar { flex-direction:column; align-items:flex-start; }
+            .menu-toggle { display:block !important; }
+            .report-item { flex-direction:column; align-items:flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fas fa-shield-alt"></i><span>IntelliVerify</span></div>
+    <div class="nav-section">Main</div>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+    <a href="submit-topic.html" class="nav-item"><i class="fas fa-file-alt"></i> Submit Topic</a>
+    <a href="approval-status.html" class="nav-item"><i class="fas fa-check-circle"></i> Approval Status</a>
+    <a href="plagiarism-report.html" class="nav-item active"><i class="fas fa-robot"></i> Plagiarism Report</a>
+    <div class="nav-section">Communication</div>
+    <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i> Messages <span class="badge" id="msgBadge">0</span></a>
+    <a href="notifications.html" class="nav-item"><i class="fas fa-bell"></i> Notifications <span class="badge" id="notifBadge">0</span></a>
+    <div class="nav-section">Settings</div>
+    <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    <a href="help.html" class="nav-item"><i class="fas fa-question-circle"></i> Help</a>
+    <div class="logout-btn"><a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <div class="page-title">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Plagiarism Reports</h1>
+            <p>View similarity analysis for your submitted topics</p>
+        </div>
+        <div class="user-area">
+            <a href="notifications.html" class="icon-btn"><i class="fas fa-bell"></i><span class="badge" id="topNotifBadge">0</span></a>
+            <a href="messages.html" class="icon-btn"><i class="fas fa-envelope"></i><span class="badge" id="topMsgBadge">0</span></a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span><i class="fas fa-robot" style="color:#0d6efd;"></i> Plagiarism Reports</span></div>
+        <div class="card-body" id="reportList">
+            <div class="empty-state"><i class="fas fa-search"></i><p>No plagiarism reports available yet.</p><p style="font-size:0.9rem;">Reports are generated automatically when you submit a topic.</p></div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:#fff;border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;padding:30px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2 id="detailTitle">Plagiarism Report</h2>
+                <button onclick="closeDetail()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;color:#6c757d;">&times;</button>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/student.js"></script>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) await window.logoutUser();
+        });
+
+        let currentUser = null;
+        let studentId = null;
+
+        async function init() {
+            try {
+                const { user, role, error } = await window.getCurrentUser();
+                if (error || !user) { window.location.href = '../login.html'; return; }
+                if (role !== 'student') { window.redirectToDashboard(role); return; }
+                currentUser = user;
+
+                const firstName = user.user_metadata?.first_name || '';
+                document.getElementById('userAvatar').textContent = (firstName || 'S').charAt(0).toUpperCase();
+
+                const { profile } = await window.getStudentProfile(user.id);
+                if (profile) studentId = profile.student_id;
+
+                if (studentId) await loadReports();
+
+                const { unreadCount: notifUnread } = await window.getStudentNotifications(user.id, 1);
+                const { unreadCount: msgUnread } = await window.getStudentMessages(user.id, 1);
+                document.getElementById('notifBadge').textContent = notifUnread || 0;
+                document.getElementById('topNotifBadge').textContent = notifUnread || 0;
+                document.getElementById('msgBadge').textContent = msgUnread || 0;
+                document.getElementById('topMsgBadge').textContent = msgUnread || 0;
+
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadReports() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('topics')
+                    .select(`
+                        topic_id,
+                        title,
+                        status,
+                        submitted_at,
+                        plagiarism_reports (
+                            report_id,
+                            similarity_percentage,
+                            risk_level,
+                            algorithm_version,
+                            generated_at,
+                            similarity_matches (
+                                match_id,
+                                matched_title,
+                                similarity_percentage,
+                                matched_keywords
+                            )
+                        )
+                    `)
+                    .eq('student_id', studentId)
+                    .order('submitted_at', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('reportList');
+                const reports = data?.filter(t => t.plagiarism_reports?.length > 0);
+
+                if (!reports || reports.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>No plagiarism reports available yet.</p><p style="font-size:0.9rem;">Reports are generated automatically when you submit a topic.</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = reports.map(t => {
+                    const report = t.plagiarism_reports[0];
+                    const score = report.similarity_percentage || 0;
+                    const risk = report.risk_level || 'low';
+                    const riskClass = risk === 'low' ? 'low' : risk === 'medium' ? 'medium' : 'high';
+
+                    return `
+                        <div class="report-item">
+                            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                                <div class="score-circle ${riskClass}">${Math.round(score)}%</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:1.05rem;">${t.title || 'Untitled'}</div>
+                                    <div style="font-size:0.85rem;color:#6c757d;">
+                                        ${formatTime(report.generated_at)} • ${report.algorithm_version || 'TF-IDF'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                                <span style="font-size:0.85rem;font-weight:500;color:${risk === 'low' ? '#198754' : risk === 'medium' ? '#856404' : '#dc3545'};">
+                                    ${risk.charAt(0).toUpperCase() + risk.slice(1)} Risk
+                                </span>
+                                <button class="btn btn-primary btn-sm" onclick="viewReport('${report.report_id}')"><i class="fas fa-eye"></i> Details</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) { console.error(err); }
+        }
+
+        window.viewReport = async function(reportId) {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('plagiarism_reports')
+                    .select(`
+                        *,
+                        topic:topic_id (title, student_id),
+                        similarity_matches (*)
+                    `)
+                    .eq('report_id', reportId)
+                    .maybeSingle();
+
+                if (error) throw error;
+                if (!data) { alert('Report not found.'); return; }
+
+                const modal = document.getElementById('detailModal');
+                modal.style.display = 'flex';
+                document.getElementById('detailTitle').textContent = `Plagiarism Report: ${data.topic?.title || 'Topic'}`;
+
+                const score = data.similarity_percentage || 0;
+                const risk = data.risk_level || 'low';
+                const riskClass = risk === 'low' ? 'low' : risk === 'medium' ? 'medium' : 'high';
+
+                let html = `
+                    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px;">
+                        <div class="score-circle ${riskClass}" style="width:100px;height:100px;font-size:2rem;">${Math.round(score)}%</div>
+                        <div>
+                            <div style="font-size:1.2rem;font-weight:600;">${risk.charAt(0).toUpperCase() + risk.slice(1)} Risk</div>
+                            <div style="color:#6c757d;">Generated: ${formatTime(data.generated_at)}</div>
+                            <div style="color:#6c757d;">Algorithm: ${data.algorithm_version || 'TF-IDF'}</div>
+                            <div style="color:#6c757d;">Processing Time: ${data.processing_time || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:15px;padding:15px;background:#f8fafc;border-radius:12px;">
+                        <strong>Recommendation:</strong>
+                        <p style="margin-top:4px;color:#495057;">
+                            ${score <= 30 ? '✅ Low risk. Proceed with submission.' :
+                              score <= 60 ? '⚠️ Medium risk. Consider revising your topic to improve originality.' :
+                              '❌ High risk. Significant similarities found. Please revise before submission.'}
+                        </p>
+                    </div>
+                `;
+
+                // Similarity matches
+                const matches = data.similarity_matches || [];
+                if (matches.length > 0) {
+                    html += `
+                        <div style="margin-top:15px;">
+                            <h4 style="margin-bottom:10px;">Matched Topics (${matches.length})</h4>
+                            ${matches.map(m => `
+                                <div class="match-item">
+                                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                                        <span><strong>${m.matched_title || 'Unknown Topic'}</strong></span>
+                                        <span style="font-weight:600;color:${m.similarity_percentage > 50 ? '#dc3545' : m.similarity_percentage > 30 ? '#ffc107' : '#198754'};">
+                                            ${Math.round(m.similarity_percentage)}% match
+                                        </span>
+                                    </div>
+                                    <div style="font-size:0.85rem;color:#6c757d;margin-top:4px;">
+                                        Matched Keywords: ${m.matched_keywords || 'N/A'}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    html += `<div style="margin-top:15px;padding:15px;background:#d1e7dd;border-radius:12px;color:#0f5132;"><i class="fas fa-check-circle"></i> No significant matches found.</div>`;
+                }
+
+                document.getElementById('detailContent').innerHTML = html;
+
+            } catch (err) { console.error(err); alert('Failed to load report details.'); }
+        };
+
+        window.closeDetail = function() {
+            document.getElementById('detailModal').style.display = 'none';
+        };
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
