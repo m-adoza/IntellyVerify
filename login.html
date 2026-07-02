@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliVerify | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .logo h2 {
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .login-card h3 i {
+            color: #0d6efd;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #5e7a93;
+            margin-bottom: 2rem;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: #f4f6f9;
+            padding: 0.5rem;
+            border-radius: 60px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            background: transparent;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .role-btn.active {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .role-btn:not(.active):hover {
+            background: #e9ecef;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0d6efd;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            border: 1px solid #dce5ef;
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .checkbox-group a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-login:hover {
+            background: #0b5ed7;
+            transform: scale(0.98);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .register-link a {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-home a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-microchip"></i>
+            <h2>IntelliVerify</h2>
+        </div>
+        
+        <div class="login-card">
+            <h3><i class="fas fa-sign-in-alt"></i> Welcome Back</h3>
+            <div class="subtitle">Login to your account</div>
+            
+            <div class="role-selector">
+                <button class="role-btn active" data-role="student">
+                    <i class="fas fa-user-graduate"></i> Student
+                </button>
+                <button class="role-btn" data-role="supervisor">
+                    <i class="fas fa-chalkboard-user"></i> Supervisor
+                </button>
+                <button class="role-btn" data-role="admin">
+                    <i class="fas fa-user-shield"></i> Admin
+                </button>
+            </div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="rememberMe"> Remember Me
+                    </label>
+                    <a href="#" id="forgotPassword">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                
+                <div class="register-link">
+                    Don't have an account? <a href="register.html">Register now</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="back-home">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        let selectedRole = 'student';
+        
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedRole = btn.getAttribute('data-role');
+                
+                // Update email placeholder based on role
+                const emailInput = document.getElementById('email');
+                if (selectedRole === 'student') emailInput.placeholder = 'student@university.edu';
+                else if (selectedRole === 'supervisor') emailInput.placeholder = 'supervisor@university.edu';
+                else emailInput.placeholder = 'admin@intelliverify.edu';
+            });
+        });
+        
+        const loginForm = document.getElementById('loginForm');
+        
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('rememberMe').checked;
+            
+            if (!email || !password) {
+                alert('⚠️ Please enter both email and password.');
+                return;
+            }
+            
+            // Store user info
+            localStorage.setItem('userRole', selectedRole);
+            localStorage.setItem('userEmail', email);
+            if (remember) localStorage.setItem('rememberedEmail', email);
+            else localStorage.removeItem('rememberedEmail');
+            
+            // Redirect based on role
+            if (selectedRole === 'student') {
+                window.location.href = 'student/dashboard.html';
+            } else if (selectedRole === 'supervisor') {
+                window.location.href = 'supervisor/dashboard.html';
+            } else {
+                window.location.href = 'admin/dashboard.html';
+            }
+        });
+        
+        document.getElementById('forgotPassword').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('📧 Password reset instructions have been sent to your email.');
+        });
+        
+        // Load remembered email
+        const rememberedEmail = localStorage.getItem('rememberedEmail');
+        if (rememberedEmail) {
+            document.getElementById('email').value = rememberedEmail;
+            document.getElementById('rememberMe').checked = true;
+        }
+        
+        // Set default email placeholder
+        document.getElementById('email').placeholder = 'student@university.edu';
+    </script>
+</body>
+</html>
