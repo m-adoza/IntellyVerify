@@ -17,7 +17,7 @@ const SUPABASE_URL = 'https://ecvvxyavruvkqrinvkax.supabase.co';
 // Supabase anonymous key (placeholder – replace with your actual key)
 // IMPORTANT: This key is safe to use in client-side code (it has limited permissions).
 // Never expose the service_role key in client-side code.
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+const SUPABASE_ANON_KEY = 'sb_publishable__nCK27XLr8-iRcFNT_aTfw_D3hLaOMh';
 
 // Initialize the Supabase client
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
